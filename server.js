@@ -1,9 +1,7 @@
 
 import axios from "axios";
 import "dotenv/config";
-import { testfun } from "./test.js";
-import { delay } from "./utils/delay.js";
-import { turnTheDeviceOFF } from "./tubearchivstturnoff.js";
+import { delay } from "./utils/delay.js";;
 import { retry } from "./homeassistant/retryWrapper.js";
 import { triggerHomeAssistantWebhook } from "./homeassistant/homeAssistantWebhook.js";
 
