@@ -48,20 +48,37 @@ async function checkTubeArchivistStatus() {
         task.name === "extract_download"
     );
 
-    const busy = activeTasks.length > 0;
+   // Only these activities should prevent shutdown.
+// A pending check_reindex, failed conversion, etc. should NOT
+// prevent the device from shutting down.
+const shutdownBlockingTasks = activeTasks.filter(task =>
+  task.name === "download_pending" ||
+  task.name === "download" ||
+  task.name === "update_subscribed" ||
+  task.name === "rescan_pending" ||
+  task.name === "extract_download"
+);
 
-    return {
-      busy,
-      downloading,
-      scanning,
-      safeToShutdown: !busy,
+const busy = shutdownBlockingTasks.length > 0;
 
-      activeTasks: activeTasks.map(task => ({
-        name: task.name,
-        status: task.status,
-        task_id: task.task_id,
-      })),
-    };
+return {
+  busy,
+  downloading,
+  scanning,
+  safeToShutdown: !busy,
+
+  activeTasks: activeTasks.map(task => ({
+    name: task.name,
+    status: task.status,
+    task_id: task.task_id,
+  })),
+
+  shutdownBlockingTasks: shutdownBlockingTasks.map(task => ({
+    name: task.name,
+    status: task.status,
+    task_id: task.task_id,
+  })),
+};
 
   } catch (error) {
     console.error(
@@ -101,6 +118,9 @@ if(status.safeToShutdown){
   "homeassistant-success",
   5
   );
+  console.log('shutingdown');
+  console.log("⏳ waiting 5 minutes...\n");
+  await delay(5 * 60 * 1000);
 }
 
   } catch (error) {
